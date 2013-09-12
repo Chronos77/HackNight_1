@@ -1,9 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+	<title>Hack Night#1</title>
+	<script type="text/javascript" src="lib/jquery-1.10.2.min.js"></script>
+	<script src="http://connect.facebook.net/fr_FR/all.js"></script>
+	<script>
+	function person(name,id,picture,hometown)
+	{
+		this.name=name;
+		this.id=id;
+		this.picture=picture;
+		this.hometown=hometown;
+	}
+
+	var personList = new Array();
+    $(document).ready(function() {
+    	FB.init({
+	        appId  : '193988564114099',
+	        status : true, // verifie le statut de la connexion
+	        cookie : true, // active les cookies pour que le serveur puisse accéder à la session
+	        xfbml  : true  // active le XFBML (HTML de Facebook)
+	    });
+
+	    FB.Event.subscribe('auth.authResponseChange', function(response) {
+	    	if (response.status === 'connected') {
+	    			FB.api(
+			    		{
+			    			method: 'fql.query',
+			    			query: 'select name,hometown_location, pic_square, uid  from user where uid in (select uid2 from friend where uid1 = me()) and hometown_location <> \'\''
+			    		},
+			    		function(data){
+
+			    		//console.log(data);
+			    		for(var i in data)
+			    		{
+			    		personList.push(new person(data[i].name, data[i].uid, data[i].pic_square, data[i].hometown_location));
+			    		//
+			    		}
+			    		console.log(personList); 
+		    		});
+				 
+			    
+	    	}
+	    });
+	});
+</script>
 </head>
 <body>
+<fb:login-button show-faces="true" width="450" perms="user_friends,user_hometown,user_friends,friends_hometown,friends_location,friends_photos"></fb:login-button>
 
 </body>
 </html>
